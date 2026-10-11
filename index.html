@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Neon Clock & Alarm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon: #00aaff;
+            --glow: #0088ff;
+            --border: #00ccff;
+            --bg: #061019
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at center, #18201f, #030707 75%);
+            color: #fff;
+            font-family: Orbitron, monospace;
+            padding: 28px 16px 40px
+        }
+
+        .floor {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: radial-gradient(ellipse at center, var(--glow), transparent 70%);
+            opacity: .13;
+            pointer-events: none
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            width: min(100%, 900px);
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px
+        }
+
+        h1 {
+            font-size: clamp(18px, 4vw, 28px);
+            text-align: center;
+            color: var(--neon);
+            text-shadow: 0 0 16px var(--glow);
+            margin: 0
+        }
+
+        .clock-container {
+            position: relative;
+            width: 220px;
+            height: 320px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 5px solid #363b3b;
+            border-radius: 65px 65px 25px 25px;
+            background: linear-gradient(90deg, #080b0b, #25201e, #080b0b);
+            box-shadow: 0 0 20px var(--glow), inset 0 0 20px var(--glow)
+        }
+
+        .clock-container:before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 3px solid var(--neon);
+            border-radius: 55px 55px 20px 20px;
+            box-shadow: 0 0 15px var(--glow)
+        }
+
+        .clock-container:after {
+            content: "";
+            position: absolute;
+            top: 45px;
+            bottom: 35px;
+            width: 110px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            background: #100e10;
+            box-shadow: inset 0 0 25px var(--glow);
+            opacity: .65
+        }
+
+        .rod {
+            position: absolute;
+            width: 8px;
+            height: 270px;
+            top: 20px;
+            background: linear-gradient(90deg, #242626, var(--neon), #292c2c);
+            border-radius: 10px;
+            z-index: 2
+        }
+
+        .rod.left {
+            left: 24px
+        }
+
+        .rod.right {
+            right: 24px
+        }
+
+        .connector {
+            position: absolute;
+            width: 23px;
+            height: 7px;
+            background: linear-gradient(#aaa, #333, #aaa);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            z-index: 3
+        }
+
+        .connector.left {
+            left: 18px
+        }
+
+        .connector.right {
+            right: 18px
+        }
+
+        .one {
+            top: 65px
+        }
+
+        .two {
+            top: 100px
+        }
+
+        .three {
+            top: 230px
+        }
+
+        .clock-content {
+            position: relative;
+            z-index: 4;
+            text-align: center
+        }
+
+        .display {
+            color: #fff;
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1.12;
+            text-shadow: 0 0 5px var(--neon), 0 0 15px var(--glow), 0 0 30px var(--glow)
+        }
+
+        .meridiem {
+            display: inline-block;
+            margin-left: 3px;
+            font-size: 10px;
+            vertical-align: top;
+            color: var(--neon)
+        }
+
+        .date {
+            margin-top: 12px;
+            color: var(--neon);
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px var(--glow)
+        }
+
+        .base {
+            position: absolute;
+            bottom: -23px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(#383b3a, #080909);
+            border: 3px solid #4a4d4c;
+            box-shadow: 0 12px 30px var(--glow);
+            z-index: 5
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            width: 100%
+        }
+
+        .panel {
+            background: rgba(5, 14, 22, .9);
+            border: 1px solid var(--neon);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 0 15px #0088ff22
+        }
+
+        .panel h2 {
+            font-size: 15px;
+            color: var(--neon);
+            margin: 0 0 16px
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin: 10px 0
+        }
+
+        label {
+            font-size: 10px;
+            color: #c9eaff
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-width: 0;
+            background: #07121c;
+            color: #fff;
+            border: 1px solid #247da0;
+            border-radius: 9px;
+            padding: 11px;
+            font: 12px Orbitron, monospace
+        }
+
+        input[type=file] {
+            font-size: 10px
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .row>* {
+            flex: 1;
+            min-width: 0
+        }
+
+        button {
+            background: #080d12;
+            color: #fff;
+            border: 1px solid var(--neon);
+            border-radius: 22px;
+            padding: 11px 13px;
+            font: 700 10px Orbitron, monospace;
+            cursor: pointer;
+            transition: .2s
+        }
+
+        button:hover,
+        button.active {
+            background: var(--glow);
+            box-shadow: 0 0 14px var(--glow)
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        .status {
+            font-size: 10px;
+            color: #a9d8f0;
+            min-height: 14px;
+            margin-top: 12px;
+            line-height: 1.6
+        }
+
+        .countdown {
+            font-size: 26px;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 14px var(--glow);
+            margin: 12px 0
+        }
+
+        .color-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .note {
+            font: 11px Arial, sans-serif;
+            color: #a6bac6;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 720px
+        }
+
+        @media(max-width:650px) {
+            .panels {
+                grid-template-columns: 1fr
+            }
+
+            .panel {
+                padding: 17px
+            }
+
+            .clock-container {
+                transform: scale(.92);
+                margin: -8px 0
+            }
+
+            .display {
+                font-size: 34px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="floor"></div>
+    <main class="page">
+        <h1>NEON DIGITAL CLOCK</h1>
+        <div class="clock-container" aria-label="Digital clock">
+            <div class="rod left"></div>
+            <div class="rod right"></div>
+            <div class="connector left one"></div>
+            <div class="connector right one"></div>
+            <div class="connector left two"></div>
+            <div class="connector right two"></div>
+            <div class="connector left three"></div>
+            <div class="connector right three"></div>
+            <div class="clock-content">
+                <div class="display" id="clock">00:00:00</div>
+                <div class="date" id="date">Loading date...</div>
+            </div>
+            <div class="base"></div>
+        </div>
+
+        <section class="panels">
+            <div class="panel">
+                <h2>⏱ COUNTDOWN TIMER</h2>
+                <div class="row">
+                    <div class="field"><label for="hours">HOURS</label><input id="hours" type="number" min="0" max="99"
+                            value="0"></div>
+                    <div class="field"><label for="minutes">MINUTES</label><input id="minutes" type="number" min="0"
+                            max="59" value="5"></div>
+                    <div class="field"><label for="seconds">SECONDS</label><input id="seconds" type="number" min="0"
+                            max="59" value="0"></div>
+                </div>
+                <div class="countdown" id="countdownDisplay">00:05:00</div>
+                <div class="row">
+                    <button id="startTimer">START</button><button id="pauseTimer">PAUSE</button><button
+                        id="resetTimer">RESET</button>
+                </div>
+                <div class="status" id="timerStatus" aria-live="polite">Ready to start.</div>
+            </div>
+
+            <div class="panel">
+                <h2>◷ ALARM CLOCK</h2>
+                <div class="field"><label for="alarmTime">SET ALARM TIME</label><input id="alarmTime" type="time"
+                        required></div>
+                <div class="field"><label for="alarmSound">ALARM SOUND</label>
+                    <select id="alarmSound">
+                        <option value="default">Built-in digital alarm (default)</option>
+                        <option value="custom">Use my audio file</option>
+                    </select>
+                </div>
+                <div class="field" id="fileField" hidden><label for="customAudio">CHOOSE SOUND FILE</label><input
+                        id="customAudio" type="file" accept="audio/*"></div>
+                <div class="row"><button id="setAlarm">SET ALARM</button><button id="cancelAlarm">CANCEL</button></div>
+                <div class="row" style="margin-top:8px"><button id="testSound">TEST SOUND</button><button
+                        id="stopAlarm">STOP SOUND</button></div>
+                <div class="status" id="alarmStatus" aria-live="polite">No alarm set.</div>
+                <audio id="customPlayer" loop></audio>
+            </div>
+        </section>
+
+        <section class="panel" style="width:100%">
+            <h2>✦ CUSTOM COLOUR THEME</h2>
+            <div class="color-controls" aria-label="Preset clock colour themes">
+                <button class="active" data-color="blue">BLUE</button>
+                <button data-color="green">GREEN</button>
+                <button data-color="red">RED</button>
+                <button data-color="purple">PURPLE</button>
+                <button data-color="pink">PINK</button>
+                <button data-color="orange">ORANGE</button>
+                <button data-color="cyan">CYAN</button>
+            </div>
+            <div class="row" style="margin-top:16px;flex-wrap:wrap">
+                <div class="field"><label for="customNeon">CHOOSE YOUR OWN NEON COLOUR</label><input id="customNeon"
+                        type="color" value="#00aaff" style="height:44px;padding:4px"></div>
+                <button id="applyCustomColor" style="align-self:end;margin-bottom:10px">APPLY CUSTOM COLOUR</button>
+            </div>
+        </section>
+        <p class="note">Keep this webpage open for alarms. Browser/device sleep settings may prevent an alarm from
+            sounding on time. The built-in sound needs no download; custom audio files are played locally in your
+            browser.</p>
+    </main>
+    <script>
+        const $ = id => document.getElementById(id);
+        let timerInterval = null;
+        let timerRemaining = 300;
+        let timerEndAt = null;
+        let alarmTimeout = null;
+        let alarmActive = false;
+        let audioContext = null;
+        let oscillatorTimer = null;
+        let customObjectUrl = null;
+
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const period = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            const hh = String(hours).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            $('clock').innerHTML = `${hh}<span class="meridiem">${period}</span><br>${mm}<br>${ss}`;
+            $('date').textContent = now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        updateClock(); setInterval(updateClock, 1000);
+
+        function setTimerDisplay(seconds) {
+            seconds = Math.max(0, Math.ceil(seconds));
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            $('countdownDisplay').textContent = `${h}:${m}:${s}`;
+        }
+        function readTimerInputs() {
+            const h = Math.max(0, Math.min(99, Number($('hours').value) || 0));
+            const m = Math.max(0, Math.min(59, Number($('minutes').value) || 0));
+            const s = Math.max(0, Math.min(59, Number($('seconds').value) || 0));
+            return h * 3600 + m * 60 + s;
+        }
+        function stopTimerInterval() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+        function tickTimer() {
+            timerRemaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+            setTimerDisplay(timerRemaining);
+            if (timerRemaining <= 0) {
+                stopTimerInterval(); timerEndAt = null;
+                $('timerStatus').textContent = 'Time is up! Alarm sound is playing.';
+                startAlarmSound();
+            }
+        }
+        $('startTimer').addEventListener('click', () => {
+            if (timerInterval) return;
+            if (timerEndAt === null && timerRemaining <= 0) timerRemaining = readTimerInputs();
+            if (timerEndAt === null && timerRemaining <= 0) { $('timerStatus').textContent = 'Enter a duration greater than zero.'; return; }
+            timerEndAt = Date.now() + timerRemaining * 1000;
+            $('timerStatus').textContent = 'Countdown running.';
+            timerInterval = setInterval(tickTimer, 200); tickTimer();
+        });
+        $('pauseTimer').addEventListener('click', () => {
+            if (timerEndAt !== null) { timerRemaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000)); }
+            stopTimerInterval(); timerEndAt = null; setTimerDisplay(timerRemaining);
+            $('timerStatus').textContent = 'Paused.';
+        });
+        $('resetTimer').addEventListener('click', () => {
+            stopTimerInterval(); timerEndAt = null; timerRemaining = readTimerInputs(); setTimerDisplay(timerRemaining);
+            $('timerStatus').textContent = 'Timer reset.';
+        });
+        ['hours', 'minutes', 'seconds'].forEach(id => $(id).addEventListener('change', () => {
+            if (!timerInterval) { timerRemaining = readTimerInputs(); setTimerDisplay(timerRemaining); }
+        }));
+        setTimerDisplay(timerRemaining);
+
+        $('alarmSound').addEventListener('change', () => {
+            $('fileField').hidden = $('alarmSound').value !== 'custom';
+        });
+        $('customAudio').addEventListener('change', () => {
+            const file = $('customAudio').files[0];
+            if (!file) return;
+            if (customObjectUrl) URL.revokeObjectURL(customObjectUrl);
+            customObjectUrl = URL.createObjectURL(file);
+            $('customPlayer').src = customObjectUrl;
+            $('alarmStatus').textContent = `Selected sound: ${file.name}`;
+        });
+
+        function stopAlarmSound() {
+            alarmActive = false;
+            if (oscillatorTimer) { clearTimeout(oscillatorTimer); oscillatorTimer = null; }
+            if (audioContext) { audioContext.close().catch(() => { }); audioContext = null; }
+            $('customPlayer').pause(); $('customPlayer').currentTime = 0;
+            $('alarmStatus').textContent = 'Alarm sound stopped.';
+            $('timerStatus').textContent = $('timerStatus').textContent === 'Time is up! Alarm sound is playing.' ? 'Timer finished.' : $('timerStatus').textContent;
+        }
+        function startAlarmSound() {
+            stopAlarmSound();
+            alarmActive = true;
+            if ($('alarmSound').value === 'custom' && $('customPlayer').src) {
+                $('customPlayer').loop = true;
+                $('customPlayer').play().then(() => { $('alarmStatus').textContent = 'Alarm ringing! Press STOP SOUND to silence it.'; })
+                    .catch(() => { playDefaultAlarm(); });
+            } else playDefaultAlarm();
+        }
+        function playDefaultAlarm() {
+            if (!alarmActive) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) { $('alarmStatus').textContent = 'Alarm due. Your browser does not support the built-in sound.'; return; }
+                audioContext = new AudioCtx();
+                if (audioContext.state === 'suspended') audioContext.resume();
+                $('alarmStatus').textContent = 'Alarm ringing! Press STOP SOUND to silence it.';
+                let count = 0;
+                const beep = () => {
+                    if (!alarmActive || !audioContext) return;
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.type = 'sine'; osc.frequency.value = count % 2 === 0 ? 880 : 660;
+                    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.22, audioContext.currentTime + 0.03);
+                    gain.gain.setValueAtTime(0.22, audioContext.currentTime + 0.18);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.24);
+                    osc.connect(gain); gain.connect(audioContext.destination);
+                    osc.start(); osc.stop(audioContext.currentTime + 0.25);
+                    count++; oscillatorTimer = setTimeout(beep, 350);
+                }; beep();
+            } catch (e) { $('alarmStatus').textContent = 'Could not play sound. Try TEST SOUND and allow audio in your browser.'; }
+        }
+        $('setAlarm').addEventListener('click', () => {
+            const value = $('alarmTime').value;
+            if (!value) { $('alarmStatus').textContent = 'Please choose an alarm time first.'; return; }
+            if (alarmTimeout) clearTimeout(alarmTimeout);
+            const [h, m] = value.split(':').map(Number);
+            const now = new Date();
+            const target = new Date(now);
+            target.setHours(h, m, 0, 0);
+            if (target <= now) target.setDate(target.getDate() + 1);
+            const delay = target - now;
+            alarmTimeout = setTimeout(() => {
+                alarmTimeout = null;
+                $('alarmStatus').textContent = 'Alarm time reached!';
+                startAlarmSound();
+            }, delay);
+            $('alarmStatus').textContent = `Alarm set for ${target.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}${target.toDateString() !== now.toDateString() ? ' tomorrow' : ''}.`;
+        });
+        $('cancelAlarm').addEventListener('click', () => {
+            if (alarmTimeout) clearTimeout(alarmTimeout); alarmTimeout = null;
+            stopAlarmSound(); $('alarmStatus').textContent = 'Alarm cancelled.';
+        });
+        $('stopAlarm').addEventListener('click', stopAlarmSound);
+        $('testSound').addEventListener('click', () => {
+            // A click enables browser audio playback.
+            if ($('alarmSound').value === 'custom' && $('customPlayer').src) {
+                $('customPlayer').loop = false; $('customPlayer').currentTime = 0;
+                $('customPlayer').play().then(() => { $('alarmStatus').textContent = 'Testing your selected sound.'; })
+                    .catch(() => { $('alarmStatus').textContent = 'Could not play file. Choose a valid audio file.'; });
+            } else startAlarmSound();
+        });
+        document.querySelectorAll('[data-color]').forEach(button => button.addEventListener('click', () => {
+            const themes = {
+                blue: { neon: '#00aaff', glow: '#0088ff', border: '#00ccff' },
+                green: { neon: '#00ff88', glow: '#00cc66', border: '#00ffaa' },
+                red: { neon: '#ff3333', glow: '#ff0000', border: '#ff6666' },
+                purple: { neon: '#b266ff', glow: '#7a00ff', border: '#d0a0ff' },
+                pink: { neon: '#ff66c4', glow: '#ff1493', border: '#ff99d6' },
+                orange: { neon: '#ff9d2e', glow: '#ff6500', border: '#ffc078' },
+                cyan: { neon: '#00ffff', glow: '#00baba', border: '#80ffff' }
+            };
+            const theme = themes[button.dataset.color];
+            Object.entries(theme).forEach(([key, value]) => document.documentElement.style.setProperty('--' + key, value));
+            document.querySelectorAll('[data-color]').forEach(b => b.classList.toggle('active', b === button));
+        }));
+        $('applyCustomColor').addEventListener('click', () => {
+            const neon = $('customNeon').value;
+            // Derive a coordinated glow and border colour from the chosen colour.
+            document.documentElement.style.setProperty('--neon', neon);
+            document.documentElement.style.setProperty('--glow', neon);
+            document.documentElement.style.setProperty('--border', neon);
+            document.querySelectorAll('[data-color]').forEach(b => b.classList.remove('active'));
+        });
+        $('customNeon').addEventListener('input', () => {
+            // Preview the selected colour immediately.
+            const neon = $('customNeon').value;
+            document.documentElement.style.setProperty('--neon', neon);
+            document.documentElement.style.setProperty('--glow', neon);
+            document.documentElement.style.setProperty('--border', neon);
+            document.querySelectorAll('[data-color]').forEach(b => b.classList.remove('active'));
+        });
+        window.addEventListener('beforeunload', () => { if (customObjectUrl) URL.revokeObjectURL(customObjectUrl); });
+    </script>
+</body>
+
+</html>
